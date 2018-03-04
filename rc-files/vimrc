@@ -1,0 +1,37 @@
+" vim defaults
+set nocompatible
+
+" only highlight diffs in vimdiff mode
+if &diff
+	syntax off
+else
+	syntax enable
+endif
+
+" display stuff
+set showcmd
+set showmatch
+set showmode
+set ruler
+set nohls
+let loaded_matchparen=1
+
+" on the tab train
+set tabstop=4
+set noexpandtab
+set softtabstop=0 " disable, default to tabstop
+set shiftwidth=0 " disable, default to tabstop
+
+" preferences, shortcuts, etc
+map Y y$
+set backspace=indent,start
+nnoremap <Tab> :s/^/#/e<Enter><Enter>
+nnoremap <S-Tab> :s/^#//e<Enter><Enter>
+
+" indenting
+vnoremap <S-Left> <gv
+vnoremap <S-Right> >gv
+nnoremap <S-Left> a<C-D><Esc>
+nnoremap <S-Right> a<C-T><Esc>
+inoremap <S-Left> <C-D>
+inoremap <S-Right> <C-T>

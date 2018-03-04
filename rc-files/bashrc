@@ -1,0 +1,28 @@
+# If not running interactively, don't do anything
+[[ "$-" == *i* ]] || return
+. /etc/bash_completion
+HISTSIZE=1000
+HISTFILESIZE=2000
+HISTCONTROL=ignoreboth
+HISTIGNORE=l:t
+export EDITOR=vi
+shopt -s histappend
+shopt -s checkwinsize
+eval $(dircolors -b)
+
+# ls, cd, etc
+alias ls='ls --color=auto'
+alias l='tput clear;pwd;ls -loh'
+alias la='l -a'
+alias lt='l -tr'
+alias p='cd ..;l'
+alias t='tree --charset ascii -C'
+
+# misc
+bind '"\C-e":unix-filename-rubout'
+alias vi='vim +0 -u ~/.vimrc'
+
+# custom functions
+[ -d ~/env ] && for f in ~/env/*; do
+	source "$f"
+done
