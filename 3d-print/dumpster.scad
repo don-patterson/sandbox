@@ -188,7 +188,8 @@ module lid(width, front_height, back_height, depth) {
    
   dh = back_height - front_height;
   lid_length = sqrt((dh*dh) + (depth*depth));
-  lower_fin_length = lid_length - lid_taper_distance;
+  upper_fin_length = lid_length - 20;
+  lower_fin_length = lid_length - lid_taper_distance - 20;
     
   // The lid fins
   for(i = [0:1:default_n_lid_fins-1]) {
@@ -198,15 +199,32 @@ module lid(width, front_height, back_height, depth) {
                   default_hinge_outer_d/2])
       cube([default_fin_thickness, lower_fin_length, default_hinge_outer_d], center = true);
       translate([ default_hinge_span/-2 + (i + 0.5) * fin_distance, 
-                  lid_length/-2, 
+                  upper_fin_length/-2, 
                   default_hinge_outer_d + default_lid_thickness/2])
-      cube([default_fin_thickness, lid_length, default_lid_thickness], center = true);
+      cube([default_fin_thickness, upper_fin_length, default_lid_thickness], center = true);
     }
   }
   
   // The lid
-  translate([0, (lid_length + 20)/-2, default_hinge_outer_d + default_lid_thickness/2]) 
-    cube([width, lid_length + 20, default_lid_thickness], center = true);
+  translate([0, (lid_length)/-2, default_hinge_outer_d + default_lid_thickness/2]) 
+    cube([width, lid_length, default_lid_thickness], center = true);
+}
+
+
+module lid_supports(width, front_height, back_height, depth) {
+
+  dh = back_height - front_height;
+  lid_length = sqrt((dh*dh) + (depth*depth));
+
+  // The lid
+  difference() {
+    translate([0, (lid_length + 8*default_slip_gap)/-2, (default_hinge_outer_d-default_slip_gap)/2]) 
+      cube([width + 5*default_slip_gap, lid_length + 8*default_slip_gap, default_hinge_outer_d-default_slip_gap], center = true);
+    translate([0, 0, 0]) {
+      translate([0, (lid_length - 2*default_slip_gap)/-2, 0]) 
+        cube([width - 10*default_slip_gap, lid_length - 2*default_slip_gap, default_hinge_outer_d*2], center = true);
+    }
+  }
 }
 
 module assembly_with_lid() {
@@ -222,6 +240,10 @@ module assembly_with_lid() {
     lid_hinge_rotor();
     difference() {
         lid(default_dumpster_width, 900, 1200, 900);
+        lid_hinge_base_cutout();
+    }
+    difference() {
+      lid_supports(default_dumpster_width, 900, 1200, 900);
         lid_hinge_base_cutout();
     }
   }
