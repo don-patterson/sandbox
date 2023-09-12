@@ -16,7 +16,7 @@ du_co_default_dumpster_depth = 5.2;
 
 // Hinge Defaults
 du_hn_default_hinge_length = du_co_default_dumpster_width;
-du_hn_default_hinge_outer_d = 0.866666666666666666666666666666; 
+du_hn_default_hinge_outer_d = 0.866666666666666666666666666666;
 du_hn_default_hinge_inner_d = 0.577777777777777777777777777777;
 
 // Lid Defaults
@@ -27,14 +27,10 @@ du_ld_lid_taper_angle = 30;
 du_ld_lid_taper_distance = du_hn_default_hinge_outer_d * cos(du_ld_lid_taper_angle);
 du_ld_default_fin_span = du_hn_default_hinge_length - 3 * du_ld_default_fin_thickness;
 
-// Temporary variable to bring our magic numbers into a good physical scale
-tmp_fudge = 173.0769230769231;
-
-
 
 // Core Dumpster Modules
 module front(
-    width, 
+    width,
     height,
     thickness
     ) {
@@ -42,18 +38,18 @@ module front(
   // main wall with "v" cutouts
   difference() {
     cube([width, thickness, height]);
-    translate([-1/tmp_fudge, -thickness/10,   height/3]) rotate([45, 0, 0]) cube([width+2/tmp_fudge, thickness, thickness]);
-    translate([-1/tmp_fudge, -thickness/10, 2*height/3]) rotate([45, 0, 0]) cube([width+2/tmp_fudge, thickness, thickness]);
+    translate([0, -thickness/10,   height/3]) rotate([45, 0, 0]) cube([width, thickness, thickness]);
+    translate([0, -thickness/10, 2*height/3]) rotate([45, 0, 0]) cube([width, thickness, thickness]);
   }
 }
 
 module side(
-    depth, 
-    front_height, 
+    depth,
+    front_height,
     back_height,
     thickness
     ) {
-        
+
   translate([thickness, 0, 0])
   rotate([0, -90, 0])
   linear_extrude(height=thickness)
@@ -61,7 +57,7 @@ module side(
 }
 
 module back(
-    width, 
+    width,
     height,
     thickness
     ) {
@@ -69,7 +65,7 @@ module back(
 }
 
 module bottom(
-    width, 
+    width,
     depth,
     thickness
     ) {
@@ -85,19 +81,19 @@ module arm(
   translate([-3*thickness, 0, 0]) {
     difference() {
       cube([4*thickness, depth, 6*thickness]);
-      translate([thickness, -1/tmp_fudge, thickness])cube([2*thickness, depth+2/tmp_fudge, 4*thickness]);
+      translate([thickness, 0, thickness]) cube([2*thickness, depth, 4*thickness]);
     }
   }
 }
 
 module dumpster(
-    width = du_co_default_dumpster_width, 
-    front_height = du_co_default_dumpster_front_height, 
-    back_height = du_co_default_dumpster_back_height, 
+    width = du_co_default_dumpster_width,
+    front_height = du_co_default_dumpster_front_height,
+    back_height = du_co_default_dumpster_back_height,
     depth = du_co_default_dumpster_depth,
     thickness = du_co_default_panel_thick
     ) {
-    
+
                                front(width, front_height, thickness);
   translate([0, depth - thickness, 0]) back(width, back_height, thickness);
                                side(depth, front_height, back_height, thickness);
@@ -108,17 +104,17 @@ module dumpster(
 }
 
 module dumpster_print_position(
-    width = du_co_default_dumpster_width, 
-    front_height = du_co_default_dumpster_front_height, 
-    back_height = du_co_default_dumpster_back_height, 
+    width = du_co_default_dumpster_width,
+    front_height = du_co_default_dumpster_front_height,
+    back_height = du_co_default_dumpster_back_height,
     depth = du_co_default_dumpster_depth,
     thickness = du_co_default_panel_thick
     ) {
-   
+
   dh = back_height - front_height;
   lid_angle = atan2(dh, depth);
   lid_length = sqrt((dh*dh) + (depth*depth));
-    
+
   translate([0, lid_length, 0])
     rotate([180 - lid_angle, 0, 0])
       translate([0, 0, -front_height])
@@ -137,15 +133,15 @@ module lid_hinge_base(
     fin_thickness = du_ld_default_fin_thickness,
     fin_span = du_ld_default_fin_span
     ) {
-    
+
   fin_distance = fin_span/(n_fins-1);
-  
+
   translate([0, 0, outer_d/2]) {
     difference() {
       // The outer solid of the hinge stator
       rotate([0, 90, 0])
         cylinder(h = hinge_length, r = outer_d/2, center = true, $fn = 128);
-    
+
       translate([0,0,0]) {
         // The slots where the lid fins swivel
         for(i = [0:1:n_fins-1]) {
@@ -153,7 +149,7 @@ module lid_hinge_base(
             cube([fin_thickness + 2*default_horz_slip_gap, large_dimension, large_dimension], center = true);
         }
         // The hollow where the rotor pin sits
-        rotate([0, 90, 0]) 
+        rotate([0, 90, 0])
           cylinder(h = hinge_length - 2 * default_horz_slip_gap, r = inner_d/2 + default_rotor_slip_gap, center = true, $fn = 128);
       }
     }
@@ -164,12 +160,12 @@ module lid_hinge_subtract(
     hinge_length = du_hn_default_hinge_length,
     outer_d = du_hn_default_hinge_outer_d,
     ) {
-  
+
   translate([0, 0, outer_d/2]) {
     // The outer solid of the hinge stator
     rotate([0, 90, 0])
       cylinder(h = hinge_length, r = outer_d/2, center = true, $fn = 128);
-    
+
   }
 }
 
@@ -180,15 +176,15 @@ module lid_hinge_base_cutout(
     fin_thickness = du_ld_default_fin_thickness,
     fin_span = du_ld_default_fin_span
     ) {
-    
+
   fin_distance = fin_span/(n_fins-1);
-  
+
   translate([0, 0, outer_d/2]) {
     difference() {
       // The outer solid of the hinge stator
       rotate([0, 90, 0])
         cylinder(h = hinge_length + 4*default_horz_slip_gap, r = outer_d/2 + default_rotor_slip_gap, center = true, $fn = 128);
-    
+
       translate([0,0,0]) {
         // The slots where the lid fins swivel
         for(i = [0:1:n_fins-1]) {
@@ -208,14 +204,14 @@ module lid_hinge_rotor(
     fin_thickness = du_ld_default_fin_thickness,
     fin_span = du_ld_default_fin_span
     ) {
-    
+
   fin_distance = fin_span/(n_fins-1);
-    
+
   translate([0, 0, outer_d/2]) {
     // The inner pin of the hinge rotor
     rotate([0, 90, 0])
       cylinder(h = hinge_length - 4 * default_horz_slip_gap, r = inner_d/2, center = true, $fn = 128);
-      
+
     // The rings where the lid fins connect
     for(i = [0:1:n_fins-1]) {
       translate([fin_span/-2 + i * fin_distance, 0, 0])
@@ -233,14 +229,14 @@ module lid_hinge_rotor(
     fin_thickness = du_ld_default_fin_thickness,
     fin_span = du_ld_default_fin_span
     ) {
-    
+
   fin_distance = fin_span/(n_fins-1);
-    
+
   translate([0, 0, outer_d/2]) {
     // The inner pin of the hinge rotor
     rotate([0, 90, 0])
       cylinder(h = hinge_length - 5 * default_horz_slip_gap, r = inner_d/2, center = true, $fn = 128);
-      
+
     // The rings where the lid fins connect
     for(i = [0:1:n_fins-1]) {
       translate([fin_span/-2 + i * fin_distance, 0, 0])
@@ -258,14 +254,14 @@ module lid_hinge_rotor_cutout(
     fin_thickness = du_ld_default_fin_thickness,
     fin_span = du_ld_default_fin_span
     ) {
-    
+
   fin_distance = fin_span/(n_fins-1);
-    
+
   translate([0, 0, outer_d/2]) {
     // The inner pin of the hinge rotor
     rotate([0, 90, 0])
       cylinder(h = hinge_length + 2*default_horz_slip_gap, r = inner_d/2 + default_rotor_slip_gap, center = true, $fn = 128);
-      
+
     // The rings where the lid fins connect
     for(i = [0:1:n_fins-1]) {
       translate([fin_span/-2 + i * fin_distance, 0, 0])
@@ -290,30 +286,30 @@ module lid(
     fin_thickness = du_ld_default_fin_thickness,
     fin_span = du_ld_default_fin_span
     ) {
-    
+
   fin_distance = fin_span/(n_fins-1);
-   
+
   dh = back_height - front_height;
   lid_length = sqrt((dh*dh) + (depth*depth));
   upper_fin_length = lid_length - panel_thickness;
   lower_fin_length = lid_length - du_ld_lid_taper_distance - panel_thickness;
-    
+
   // The lid fins
   for(i = [0:1:n_fins-1]) {
     hull() {
-      translate([ fin_span/-2 + i * fin_distance, 
-                  lower_fin_length/-2, 
+      translate([ fin_span/-2 + i * fin_distance,
+                  lower_fin_length/-2,
                   outer_d/2])
       cube([fin_thickness, lower_fin_length, outer_d], center = true);
-      translate([ fin_span/-2 + i * fin_distance, 
-                  upper_fin_length/-2, 
+      translate([ fin_span/-2 + i * fin_distance,
+                  upper_fin_length/-2,
                   outer_d + lid_thickness/2])
       cube([fin_thickness, upper_fin_length, lid_thickness], center = true);
     }
   }
-  
+
   // The lid
-  translate([0, (lid_length)/-2, outer_d + lid_thickness/2]) 
+  translate([0, (lid_length)/-2, outer_d + lid_thickness/2])
     cube([width, lid_length, lid_thickness], center = true);
 }
 
@@ -329,30 +325,30 @@ module lid_fin_cutout(
     fin_thickness = du_ld_default_fin_thickness,
     fin_span = du_ld_default_fin_span
     ) {
-    
+
   fin_distance = fin_span/(n_fins-1);
-   
+
   dh = back_height - front_height;
   lid_length = sqrt((dh*dh) + (depth*depth));
   upper_fin_length = lid_length - panel_thickness;
   lower_fin_length = lid_length - du_ld_lid_taper_distance - panel_thickness;
-    
+
   // The lid fins
   for(i = [0:1:n_fins-1]) {
     hull() {
-      translate([ fin_span/-2 + i * fin_distance, 
-                  lower_fin_length/-2, 
+      translate([ fin_span/-2 + i * fin_distance,
+                  lower_fin_length/-2,
                   outer_d/2])
       cube([
-        fin_thickness + 2*default_horz_slip_gap, 
-        lower_fin_length + 2*default_horz_slip_gap, 
+        fin_thickness + 2*default_horz_slip_gap,
+        lower_fin_length + 2*default_horz_slip_gap,
         outer_d + 2*default_horz_slip_gap], center = true);
-      translate([ fin_span/-2 + i * fin_distance, 
-                  upper_fin_length/-2, 
+      translate([ fin_span/-2 + i * fin_distance,
+                  upper_fin_length/-2,
                   outer_d + lid_thickness/2])
       cube([
-        fin_thickness + 2*default_horz_slip_gap, 
-        upper_fin_length + 2*default_horz_slip_gap, 
+        fin_thickness + 2*default_horz_slip_gap,
+        upper_fin_length + 2*default_horz_slip_gap,
         lid_thickness + 2*default_horz_slip_gap], center = true);
     }
   }
@@ -372,10 +368,10 @@ module lid_supports(
 
   // The lid perimeter
   difference() {
-    translate([0, (lid_length + 8*support_gap)/-2, (outer_d-support_gap)/2]) 
+    translate([0, (lid_length + 8*support_gap)/-2, (outer_d-support_gap)/2])
       cube([width - support_gap, lid_length + 4*support_gap, outer_d-support_gap], center = true);
     translate([0, 0, 0]) {
-      translate([0, (lid_length - 2*support_gap)/-2, 0]) 
+      translate([0, (lid_length - 2*support_gap)/-2, 0])
         cube([width - 16*support_gap, lid_length - 6*support_gap, outer_d*2], center = true);
     }
   }
@@ -385,9 +381,9 @@ module lid_supports(
 
 // Full Assembly Modules
 module assembly_with_lid(
-    width = du_co_default_dumpster_width, 
-    front_height = du_co_default_dumpster_front_height, 
-    back_height = du_co_default_dumpster_back_height, 
+    width = du_co_default_dumpster_width,
+    front_height = du_co_default_dumpster_front_height,
+    back_height = du_co_default_dumpster_back_height,
     depth = du_co_default_dumpster_depth,
     thickness = du_co_default_panel_thick,
     hinge_inner_d = du_hn_default_hinge_inner_d,
@@ -397,9 +393,9 @@ module assembly_with_lid(
     fin_thickness = du_ld_default_fin_thickness,
     fin_span = du_ld_default_fin_span
     ) {
-        
+
   hinge_length = width;
-        
+
   lid_hinge_base(hinge_length, hinge_outer_d, hinge_inner_d, n_lid_fins, fin_thickness, fin_span);
   difference() {
     dumpster_print_position(width, front_height, back_height, depth, thickness);
@@ -426,8 +422,8 @@ module assembly_with_lid(
 
 assembly_with_lid(
     width = 8,
-    front_height = 6, 
-    back_height = 8, 
+    front_height = 6,
+    back_height = 8,
     depth = 6,
     n_lid_fins = 4,
     fin_span = 8 - 3 * du_ld_default_fin_thickness // Likely should be computed within module.
